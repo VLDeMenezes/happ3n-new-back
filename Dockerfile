@@ -12,7 +12,8 @@ RUN npm install --production
 
 # Copia el resto del código al contenedor
 COPY . .
-
+# Ejecutamos la construcción del proyecto
+RUN npm run build
 # Expone el puerto que usará la app (Railway usará automáticamente el puerto definido por la variable $PORT)
 EXPOSE 3000
 
