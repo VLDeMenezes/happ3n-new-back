@@ -7,6 +7,9 @@ WORKDIR /app
 # Copia los archivos del package.json y package-lock.json
 COPY package*.json ./
 
+# Instala el CLI de NestJS de forma global
+RUN npm install -g @nestjs/cli
+
 # Instala las dependencias
 RUN npm install --production
 
