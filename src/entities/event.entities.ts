@@ -26,8 +26,8 @@ export class Event {
   timeZone: string;
   @Column()
   price: string;
-  @Column()
+  @Column('simple-array')
   toppings: string[];
-  @Column()
+  @Column('simple-array')
   guest: string[];
 }

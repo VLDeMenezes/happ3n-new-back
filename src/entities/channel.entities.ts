@@ -1,5 +1,27 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Hub } from './hub.entities';
+class Banner {
+  id: string;
+  title: string;
+  img: string;
+}
+
+export class Socials {
+  name: string;
+  link: string;
+}
+
+class Data {
+  trending: string;
+  visualization: string;
+  engagement: string;
+}
 
 @Entity()
 export class Channel {
@@ -37,22 +59,6 @@ export class Channel {
   banners: Banner[];
 
   @OneToMany(() => Hub, (hub) => hub.owener, { nullable: true })
+  @JoinColumn({ name: 'hubId' })
   hub: Hub[];
-}
-
-class Banner {
-  id: string;
-  title: string;
-  img: string;
-}
-
-class Socials {
-  name: string;
-  link: string;
-}
-
-class Data {
-  trending: string;
-  visualization: string;
-  engagement: string;
 }

@@ -9,6 +9,10 @@ import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 import { MetricsModule } from './metrics/metrics.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { Channel } from './entities/channel.entities';
+import { User } from './entities/user.entities';
+import { Event } from './entities/event.entities';
+import { Hub } from './entities/hub.entities';
 
 @Module({
   imports: [
@@ -21,6 +25,7 @@ import { ConfigModule } from '@nestjs/config';
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres',
+      entities: [Channel, User, Event, Hub],
       url: process.env.DATABASE_URL,
       autoLoadEntities: true,
       synchronize: true, // ¡Desactivar en producción
