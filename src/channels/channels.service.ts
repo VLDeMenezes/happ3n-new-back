@@ -1,11 +1,21 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-
+import { v2 as cloudinary } from 'cloudinary';
+import * as fs from 'fs';
+import { promisify } from 'util';
 import { InjectMetric } from '@willsoto/nestjs-prometheus';
 import { Counter } from 'prom-client';
 import { CreateChannelDto } from 'src/dto/channel.dto';
 import { Channel } from 'src/entities/channel.entities';
 import { Repository } from 'typeorm';
+
+const unlinkAsync = promisify(fs.unlink);
+
+cloudinary.config({
+  cloud_name: 'dc3s16lku',
+  api_key: '169859421985449',
+  api_secret: '5vjhIfAPN4PLzDsWbnWIDwYjPkI',
+});
 @Injectable()
 export class ChannelsService {
   constructor(
@@ -25,9 +35,26 @@ export class ChannelsService {
     return this.channelRepository.findOne({ where: { id } });
   }
 
-  async create(data: CreateChannelDto): Promise<Channel> {
+  async uploadImage(file: Express.Multer.File): Promise<string> {
+    const result = await cloudinary.uploader.upload(file.path, {
+      folder: 'channels', // Carpeta en Cloudinary
+    });
+    await unlinkAsync(file.path); // Eliminar archivo temporal
+    return result.secure_url;
+  }
+  async create(
+    body: CreateChannelDto,
+    avatar?: Express.Multer.File,
+    background?: Express.Multer.File,
+  ): Promise<Channel> {
     try {
-      const newChannel = this.channelRepository.create(data);
+      const avatarUrl = avatar ? await this.uploadImage(avatar) : null;
+      const backgroundUrl = background
+        ? await this.uploadImage(background)
+        : null;
+      const channel = { ...body, avatar: avatarUrl, background: backgroundUrl };
+      console.log('Creating new channel with data:', channel);
+      const newChannel = this.channelRepository.create(channel);
       this.channelsCreatedCounter.inc(); // Incrementa el contador
       return this.channelRepository.save(newChannel);
     } catch (error) {
@@ -38,8 +65,25 @@ export class ChannelsService {
     }
   }
 
-  async update(id: string, data: Partial<Channel>): Promise<Channel> {
-    await this.channelRepository.update(id, data);
+  async update(
+    id: string,
+    body: Partial<Channel>,
+    avatar?: Express.Multer.File,
+    background?: Express.Multer.File,
+  ): Promise<Channel> {
+    const channel = await this.channelRepository.findOneBy({ id });
+    if (!channel) throw new Error('Channel not found');
+    const avatarUrl = avatar ? await this.uploadImage(avatar) : channel.avatar;
+    const backgroundUrl = background
+      ? await this.uploadImage(background)
+      : channel.background;
+    const updatedChannel = {
+      ...channel,
+      ...body,
+      avatar: avatarUrl,
+      background: backgroundUrl,
+    };
+    await this.channelRepository.update(id, updatedChannel);
     return this.channelRepository.findOne({ where: { id } });
   }
 

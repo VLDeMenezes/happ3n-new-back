@@ -49,7 +49,7 @@ export class Channel {
   @Column('jsonb', { nullable: true })
   events: Event[];
 
-  @Column()
+  @Column({ nullable: true })
   avatar: string;
 
   @Column('jsonb', { nullable: true })

@@ -48,7 +48,6 @@ export class CreateChannelDto {
   @IsOptional()
   @ApiProperty({
     description: 'Principals Banners of the channel',
-
     required: false,
   })
   banners: any[] = [];

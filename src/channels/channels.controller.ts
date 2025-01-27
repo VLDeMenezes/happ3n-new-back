@@ -6,12 +6,18 @@ import {
   Body,
   Put,
   Delete,
+  UseInterceptors,
+  UploadedFiles,
 } from '@nestjs/common';
 import { ChannelsService } from './channels.service';
 import { Channel } from 'src/entities/channel.entities';
 import { CreateChannelDto } from 'src/dto/channel.dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-
+import {
+  AnyFilesInterceptor,
+  FilesInterceptor,
+} from '@nestjs/platform-express';
+import { multerOptions } from '../multer';
 @ApiTags('channels')
 @Controller('channels')
 export class ChannelsController {
@@ -37,8 +43,16 @@ export class ChannelsController {
     description: 'The channel has been successfully created.',
   })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
-  create(@Body() createChannelDto: CreateChannelDto): Promise<Channel> {
-    return this.channelsService.create(createChannelDto);
+  @UseInterceptors(AnyFilesInterceptor(multerOptions))
+  async createChannel(
+    @UploadedFiles() files: Express.Multer.File[],
+    @Body() createChannelDto: CreateChannelDto,
+  ): Promise<Channel> {
+    console.log('Received files:', files); // Verifica que los archivos se reciban
+    console.log('Received body:', createChannelDto);
+    const avatar = files.find((file) => file.fieldname === 'avatar');
+    const background = files.find((file) => file.fieldname === 'background');
+    return this.channelsService.create(createChannelDto, avatar, background);
   }
 
   @Put('modify/:id')
