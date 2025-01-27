@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { ChannelsService } from './channels.service';
 import { Channel } from 'src/entities/channel.entities';
+import { CreateChannelDto } from 'src/dto/channel.dto';
 
 @Controller('channels')
 export class ChannelsController {
@@ -25,7 +26,7 @@ export class ChannelsController {
   }
 
   @Post('create')
-  create(@Body() createChannelDto: Partial<Channel>): Promise<Channel> {
+  create(@Body() createChannelDto: CreateChannelDto): Promise<Channel> {
     return this.channelsService.create(createChannelDto);
   }
 
