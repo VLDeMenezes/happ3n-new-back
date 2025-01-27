@@ -29,12 +29,12 @@ export class CreateChannelDto {
     description: 'Social Media links of the channel',
     required: false,
   })
-  social: any[];
+  social: any[] = [];
 
   @IsOptional()
   @IsArray()
   @ApiProperty({ description: 'Events of the channel', required: false })
-  events: any[];
+  events: any[] = [];
 
   @IsOptional()
   @IsString()
@@ -51,7 +51,7 @@ export class CreateChannelDto {
 
     required: false,
   })
-  banners: any[];
+  banners: any[] = [];
 
   @IsOptional()
   @ApiProperty({

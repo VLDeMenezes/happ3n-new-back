@@ -31,7 +31,7 @@ export class Channel {
   @Column()
   channelName: string;
 
-  @Column()
+  @Column({ nullable: true })
   background: string;
 
   @Column()
@@ -43,19 +43,19 @@ export class Channel {
   @Column()
   about: string;
 
-  @Column('jsonb')
+  @Column('jsonb', { nullable: true })
   social: Socials[];
 
-  @Column('jsonb')
+  @Column('jsonb', { nullable: true })
   events: Event[];
 
   @Column()
   avatar: string;
 
-  @Column('jsonb')
+  @Column('jsonb', { nullable: true })
   data: Data;
 
-  @Column('jsonb')
+  @Column('jsonb', { nullable: true })
   banners: Banner[];
 
   @OneToMany(() => Hub, (hub) => hub.owener, { nullable: true })
