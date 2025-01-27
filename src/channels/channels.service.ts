@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { InjectMetric } from '@willsoto/nestjs-prometheus';
 import { Counter } from 'prom-client';
+import { CreateChannelDto } from 'src/dto/channel.dto';
 import { Channel } from 'src/entities/channel.entities';
 import { Repository } from 'typeorm';
 @Injectable()
@@ -24,10 +25,17 @@ export class ChannelsService {
     return this.channelRepository.findOne({ where: { id } });
   }
 
-  async create(data: Partial<Channel>): Promise<Channel> {
-    this.channelsCreatedCounter.inc(); // Incrementa el contador
-    const newChannel = this.channelRepository.create(data);
-    return this.channelRepository.save(newChannel);
+  async create(data: CreateChannelDto): Promise<Channel> {
+    try {
+      const newChannel = this.channelRepository.create(data);
+      this.channelsCreatedCounter.inc(); // Incrementa el contador
+      return this.channelRepository.save(newChannel);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error while creating the channel',
+        error,
+      );
+    }
   }
 
   async update(id: string, data: Partial<Channel>): Promise<Channel> {
@@ -38,7 +46,6 @@ export class ChannelsService {
   async remove(id: string): Promise<Channel> {
     const channel = await this.channelRepository.findOne({ where: { id } });
     if (channel) {
-      // Aquí puedes cambiar una propiedad como `isDeleted` en lugar de eliminar realmente
       await this.channelRepository.remove(channel);
     }
     return channel;

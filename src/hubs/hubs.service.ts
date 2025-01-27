@@ -1,39 +1,45 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { InjectMetric } from '@willsoto/nestjs-prometheus';
 import { Counter } from 'prom-client';
+import { Hub } from 'src/entities/hub.entities';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class HubsService {
   constructor(
+    @InjectRepository(Hub)
+    private readonly hubRepository: Repository<Hub>,
     @InjectMetric('HubsCreated')
     private readonly hubsCreatedCounter: Counter<string>,
     @InjectMetric('HubsFetchedById')
     private readonly hubsFetchedByIdCounter: Counter<string>,
   ) {}
-  findAll() {
-    // Aquí iría la lógica para obtener todos los Hubs de la base de datos
-    return [];
+  async findAll(): Promise<Hub[]> {
+    return this.hubRepository.find();
   }
 
-  findOne(id: string) {
-    this.hubsFetchedByIdCounter.inc(); // Incrementa el contador al obtener un Hub por ID
-    // Lógica para buscar un canal por ID
-    return { id, name: 'Sample Channel' };
+  async findOne(id: string): Promise<Hub> {
+    this.hubsFetchedByIdCounter.inc(); // Incrementa el contador
+    return this.hubRepository.findOne({ where: { id } });
   }
 
-  create(data: any) {
-    this.hubsCreatedCounter.inc(); // Incrementa el contador al crear un Hub
-    // Lógica para crear un Hub
-    return { id: 'new-id', ...data };
+  async create(data: Partial<Hub>): Promise<Hub> {
+    this.hubsCreatedCounter.inc(); // Incrementa el contador
+    const newHub = this.hubRepository.create(data);
+    return this.hubRepository.save(newHub);
   }
 
-  update(id: string, data: any) {
-    // Lógica para actualizar un Hub
-    return { id, ...data };
+  async update(id: string, data: Partial<Hub>): Promise<Hub> {
+    await this.hubRepository.update(id, data);
+    return this.hubRepository.findOne({ where: { id } });
   }
 
-  remove(id: string) {
-    // Lógica para "eliminar" un Hub (por ejemplo, cambiar un flag de visibilidad)
-    return { id, visible: false };
+  async remove(id: string): Promise<Hub> {
+    const Hub = await this.hubRepository.findOne({ where: { id } });
+    if (Hub) {
+      await this.hubRepository.remove(Hub);
+    }
+    return Hub;
   }
 }

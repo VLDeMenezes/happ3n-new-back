@@ -7,31 +7,38 @@ import {
   Put,
   Delete,
 } from '@nestjs/common';
+import { EventosService } from './eventos.service';
+import { Event } from 'src/entities/event.entities';
 
 @Controller('events')
 export class EventsController {
+  constructor(private readonly eventsService: EventosService) {}
+
   @Get()
-  findAll() {
-    return 'Devuelve todos los eventos';
+  findAll(): Promise<Event[]> {
+    return this.eventsService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return `Devuelve el evento con ID: ${id}`;
+  findOne(@Param('id') id: string): Promise<Event> {
+    return this.eventsService.findOne(id);
   }
 
   @Post('create')
-  create(@Body() createChannelDto: any) {
-    return 'Crea un evento';
+  create(@Body() createChannelDto: Partial<Event>): Promise<Event> {
+    return this.eventsService.create(createChannelDto);
   }
 
   @Put('modify/:id')
-  modify(@Param('id') id: string, @Body() modifyChannelDto: any) {
-    return `Modifica el evento con ID: ${id}`;
+  modify(
+    @Param('id') id: string,
+    @Body() modifyChannelDto: Partial<Event>,
+  ): Promise<Event> {
+    return this.eventsService.update(id, modifyChannelDto);
   }
 
   @Delete('destroy/:id')
-  destroy(@Param('id') id: string) {
-    return `Elimina la visibilidad del evento con ID: ${id}`;
+  destroy(@Param('id') id: string): Promise<Event> {
+    return this.eventsService.remove(id);
   }
 }
