@@ -1,24 +1,20 @@
-# Usa una imagen de Node.js como base
-FROM node:18-alpine
+# Usa Node.js 20 como imagen base
+FROM node:20-alpine AS base
 
-# Establece el directorio de trabajo
+# Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copia los archivos del package.json y package-lock.json
-COPY package*.json ./
+# Copia solo los archivos necesarios para instalar dependencias
+COPY package.json package-lock.json ./
 
-# Instala el CLI de NestJS de forma global
-RUN npm install -g @nestjs/cli
-
-# Instala las dependencias
-RUN npm install --production
+# Instala dependencias con una opción para evitar problemas de compatibilidad
+RUN npm ci --legacy-peer-deps
 
 # Copia el resto del código al contenedor
 COPY . .
-# Ejecutamos la construcción del proyecto
-RUN npm run build
-# Expone el puerto que usará la app (Railway usará automáticamente el puerto definido por la variable $PORT)
+
+# Expone el puerto en el que corre la aplicación (cambia según configuración)
 EXPOSE 3000
 
-# Comando para ejecutar la app
-CMD ["npm", "run", "start:prod"]
+# Comando por defecto para correr la aplicación
+CMD ["npm", "run", "start"]
