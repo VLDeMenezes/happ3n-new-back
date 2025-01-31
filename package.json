@@ -5,8 +5,10 @@
   "author": "Victor Leandro De Menezes",
   "private": true,
   "license": "UNLICENSED",
+  "engines": {
+    "node": "20.0"
+  },
   "scripts": {
-    "postinstall": "npm install --legacy-peer-deps",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
@@ -77,8 +79,5 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  },
-  "engines": {
-    "node": "20.0"
   }
 }
