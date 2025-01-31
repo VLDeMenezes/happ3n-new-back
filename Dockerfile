@@ -11,7 +11,7 @@ COPY package*.json ./
 RUN npm install -g @nestjs/cli
 
 # Instala las dependencias
-RUN npm install --legacy-peer-deps --production
+RUN npm install  --production
 
 # Copia el resto del código al contenedor
 COPY . .
