@@ -8,6 +8,7 @@ import { Counter } from 'prom-client';
 import { CreateChannelDto } from 'src/dto/channel.dto';
 import { Channel } from 'src/entities/channel.entities';
 import { Repository } from 'typeorm';
+import { Multer } from 'multer';
 
 const unlinkAsync = promisify(fs.unlink);
 
@@ -35,7 +36,7 @@ export class ChannelsService {
     return this.channelRepository.findOne({ where: { id } });
   }
 
-  async uploadImage(file: Express.Multer.File): Promise<string> {
+  async uploadImage(file: any): Promise<string> {
     const result = await cloudinary.uploader.upload(file.path, {
       folder: 'channels', // Carpeta en Cloudinary
     });
@@ -44,8 +45,8 @@ export class ChannelsService {
   }
   async create(
     body: CreateChannelDto,
-    avatar?: Express.Multer.File,
-    background?: Express.Multer.File,
+    avatar?: any,
+    background?: any,
   ): Promise<Channel> {
     try {
       const avatarUrl = avatar ? await this.uploadImage(avatar) : null;
@@ -68,8 +69,8 @@ export class ChannelsService {
   async update(
     id: string,
     body: Partial<Channel>,
-    avatar?: Express.Multer.File,
-    background?: Express.Multer.File,
+    avatar?: any,
+    background?: any,
   ): Promise<Channel> {
     const channel = await this.channelRepository.findOneBy({ id });
     if (!channel) throw new Error('Channel not found');
