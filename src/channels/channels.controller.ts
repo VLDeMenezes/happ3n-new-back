@@ -15,6 +15,8 @@ import { CreateChannelDto } from 'src/dto/channel.dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from '../multer';
+import { Multer } from 'multer';
+import { Express } from 'express';
 
 @ApiTags('channels')
 @Controller('channels')
