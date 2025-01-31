@@ -36,7 +36,7 @@ export class ChannelsService {
     return this.channelRepository.findOne({ where: { id } });
   }
 
-  async uploadImage(file: any): Promise<string> {
+  async uploadImage(file: Express.Multer.File): Promise<string> {
     const result = await cloudinary.uploader.upload(file.path, {
       folder: 'channels', // Carpeta en Cloudinary
     });
@@ -45,8 +45,8 @@ export class ChannelsService {
   }
   async create(
     body: CreateChannelDto,
-    avatar?: any,
-    background?: any,
+    avatar?: Express.Multer.File,
+    background?: Express.Multer.File,
   ): Promise<Channel> {
     try {
       const avatarUrl = avatar ? await this.uploadImage(avatar) : null;

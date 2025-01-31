@@ -43,7 +43,7 @@ export class ChannelsController {
   @ApiResponse({ status: 400, description: 'Bad Request.' })
   @UseInterceptors(AnyFilesInterceptor(multerOptions))
   async createChannel(
-    @UploadedFiles() files: any,
+    @UploadedFiles() files: Express.Multer.File[],
     @Body() createChannelDto: CreateChannelDto,
   ): Promise<Channel> {
     const avatar = files.find((file) => file.fieldname === 'avatar');
