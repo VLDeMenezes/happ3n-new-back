@@ -7,7 +7,18 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   console.log(process.env.CLIENT_URL);
   app.enableCors({
-    origin: process.env.CLIENT_URL,
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        'https://happ3n.vercel.app',
+        'http://localhost:5173',
+        process.env.CLIENT_URL,
+      ];
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
