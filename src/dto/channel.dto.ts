@@ -59,3 +59,7 @@ export class CreateChannelDto {
   })
   hubId: string;
 }
+
+export class UpdateChannelDto extends CreateChannelDto {
+  //de momento se puede modificar todo, chequear con el cliente
+}

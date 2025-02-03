@@ -16,13 +16,13 @@ import { Hub } from './entities/hub.entities';
 
 @Module({
   imports: [
+    ConfigModule.forRoot(),
     PrometheusModule.register(),
     ChannelsModule,
     HubsModule,
     EventosModule,
     UsuariosModule,
     MetricsModule,
-    ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres',
       entities: [Channel, User, Event, Hub],

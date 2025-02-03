@@ -11,12 +11,12 @@ import {
 } from '@nestjs/common';
 import { ChannelsService } from './channels.service';
 import { Channel } from 'src/entities/channel.entities';
-import { CreateChannelDto } from 'src/dto/channel.dto';
+import { CreateChannelDto, UpdateChannelDto } from 'src/dto/channel.dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from '../multer';
 
-@ApiTags('channels')
+@ApiTags('Channels')
 @Controller('channels')
 export class ChannelsController {
   constructor(private readonly channelsService: ChannelsService) {}
@@ -33,42 +33,53 @@ export class ChannelsController {
     return this.channelsService.findOne(id);
   }
 
-  @Post('create')
-  @ApiOperation({ summary: 'Create a new channel' })
+  @Post()
+  @ApiOperation({ summary: 'Create a new Channel' })
   @ApiBody({ type: CreateChannelDto })
   @ApiResponse({
     status: 201,
     description: 'The channel has been successfully created.',
   })
-  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @ApiResponse({ status: 400, description: 'Bad Request, check data.' })
   @UseInterceptors(AnyFilesInterceptor(multerOptions))
-  async createChannel(
+  async create(
     @UploadedFiles() files: Express.Multer.File[],
     @Body() createChannelDto: CreateChannelDto,
   ): Promise<Channel> {
-    const avatar = files.find((file) => file.fieldname === 'avatar');
-    const background = files.find((file) => file.fieldname === 'background');
+    const avatar = files?.find((file) => file.fieldname === 'avatar') || null;
+    const background =
+      files?.find((file) => file.fieldname === 'background') || null;
+
     return this.channelsService.create(createChannelDto, avatar, background);
   }
 
-  @Put('modify/:id')
+  @Put(':id')
   @ApiOperation({ summary: 'Update a channel' })
-  @ApiBody({ type: CreateChannelDto })
+  @ApiBody({ type: UpdateChannelDto })
   @ApiResponse({
-    status: 201,
+    status: 200,
     description: 'The channel has been successfully modified.',
   })
-  @ApiResponse({ status: 400, description: 'Bad Request.' })
-  modify(
+  @ApiResponse({ status: 400, description: 'Bad Request, check data.' })
+  update(
     @Param('id') id: string,
-    @Body() modifyChannelDto: Partial<Channel>,
+    @UploadedFiles() files: Express.Multer.File[],
+    @Body() updateChannelDto: UpdateChannelDto,
   ): Promise<Channel> {
-    return this.channelsService.update(id, modifyChannelDto);
+    const avatar = files?.find((file) => file.fieldname === 'avatar') || null;
+    const background =
+      files?.find((file) => file.fieldname === 'background') || null;
+    return this.channelsService.update(id, updateChannelDto);
   }
 
-  @Delete('destroy/:id')
+  @Delete(':id')
   @ApiOperation({ summary: 'Delete a channel' })
-  destroy(@Param('id') id: string): Promise<Channel> {
+  @ApiResponse({
+    status: 200,
+    description: 'The channel has been successfully deleted.',
+  })
+  @ApiResponse({ status: 404, description: 'Channel not found.' })
+  remove(@Param('id') id: string): Promise<string> {
     return this.channelsService.remove(id);
   }
 }
