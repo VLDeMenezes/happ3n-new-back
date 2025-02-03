@@ -13,6 +13,7 @@ import { Channel } from './entities/channel.entities';
 import { User } from './entities/user.entities';
 import { Event } from './entities/event.entities';
 import { Hub } from './entities/hub.entities';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { Hub } from './entities/hub.entities';
       autoLoadEntities: true,
       synchronize: true, // ¡Desactivar en producción
     }),
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

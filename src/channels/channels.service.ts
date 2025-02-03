@@ -12,6 +12,7 @@ import { Counter } from 'prom-client';
 import { CreateChannelDto, UpdateChannelDto } from 'src/dto/channel.dto';
 import { Channel } from 'src/entities/channel.entities';
 import { Repository } from 'typeorm';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 const unlinkAsync = promisify(fs.unlink);
 cloudinary.config({
@@ -24,6 +25,7 @@ export class ChannelsService {
   constructor(
     @InjectRepository(Channel)
     private readonly channelRepository: Repository<Channel>,
+    private readonly cloudinaryService: CloudinaryService,
     @InjectMetric('ChannelsCreated')
     private readonly channelsCreatedCounter: Counter<string>,
     @InjectMetric('ChannelsFetchedById')
@@ -50,11 +52,14 @@ export class ChannelsService {
     }
   }
   async uploadImage(file: Express.Multer.File): Promise<string> {
-    const result = await cloudinary.uploader.upload(file.path, {
-      folder: 'channels', // Carpeta en Cloudinary
-    });
-    await this.removeTempFile(file.path);
-    return result.secure_url;
+    try {
+      const result = await cloudinary.uploader.upload(file.path, {
+        folder: 'channels', // Carpeta en Cloudinary
+      });
+
+      await this.removeTempFile(file.path);
+      return result.secure_url;
+    } catch (error) {}
   }
   async create(
     body: CreateChannelDto,

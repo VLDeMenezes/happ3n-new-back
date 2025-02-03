@@ -69,7 +69,12 @@ export class ChannelsController {
     const avatar = files?.find((file) => file.fieldname === 'avatar') || null;
     const background =
       files?.find((file) => file.fieldname === 'background') || null;
-    return this.channelsService.update(id, updateChannelDto);
+    return this.channelsService.update(
+      id,
+      updateChannelDto,
+      avatar,
+      background,
+    );
   }
 
   @Delete(':id')
