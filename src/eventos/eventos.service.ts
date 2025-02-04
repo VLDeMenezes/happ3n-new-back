@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { v2 as cloudinary } from 'cloudinary';
 import { promisify } from 'util';
 import * as fs from 'fs';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 const unlinkAsync = promisify(fs.unlink);
 
 @Injectable()
@@ -15,6 +16,7 @@ export class EventosService {
   constructor(
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
+    private readonly cloudinaryService: CloudinaryService,
     @InjectMetric('EventsCreated')
     private readonly eventsCreatedCounter: Counter<string>,
     @InjectMetric('EventsFetchedById')
@@ -28,26 +30,15 @@ export class EventosService {
     this.eventsFetchedByIdCounter.inc(); // Incrementa el contador
     return this.eventRepository.findOne({ where: { id } });
   }
-  private async removeTempFile(filePath: string): Promise<void> {
-    try {
-      await unlinkAsync(filePath);
-    } catch (error) {
-      console.error('Error deleting temp file:', error);
-    }
-  }
-  async uploadImage(file: Express.Multer.File): Promise<string> {
-    const result = await cloudinary.uploader.upload(file.path, {
-      folder: 'channels', // Carpeta en Cloudinary
-    });
-    await this.removeTempFile(file.path);
-    return result.secure_url;
-  }
+
   async create(
     body: CreateEventDTO,
     img?: Express.Multer.File,
   ): Promise<Event> {
     try {
-      const imgUrl = img ? await this.uploadImage(img) : null;
+      const imgUrl = img
+        ? await this.cloudinaryService.uploadImage(img, 'events')
+        : null;
 
       const event = { ...body, img: imgUrl };
       const newEvent = this.eventRepository.create(event);
@@ -73,7 +64,9 @@ export class EventosService {
           details: `Event with id ${id} not found`,
         });
       }
-      const imgUrl = img ? await this.uploadImage(img) : event.img;
+      const imgUrl = img
+        ? await this.cloudinaryService.uploadImage(img, 'events')
+        : event.img;
       const data = { ...body, img: imgUrl };
       Object.assign(event, {
         ...body,
