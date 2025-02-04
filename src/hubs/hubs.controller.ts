@@ -10,6 +10,7 @@ import {
 import { HubsService } from './hubs.service';
 import { Hub } from 'src/entities/hub.entities';
 import { ApiTags } from '@nestjs/swagger';
+import { CreateHubDTO, UpdateHubDTO } from 'src/dto/hub.dto';
 
 @Controller('hubs')
 @ApiTags('Hubs')
@@ -27,20 +28,20 @@ export class HubsController {
   }
 
   @Post('create')
-  create(@Body() createChannelDto: Partial<Hub>): Promise<Hub> {
-    return this.hubsService.create(createChannelDto);
+  create(@Body() createHubDto: CreateHubDTO): Promise<Hub> {
+    return this.hubsService.create(createHubDto);
   }
 
   @Put('modify/:id')
   modify(
     @Param('id') id: string,
-    @Body() modifyChannelDto: Partial<Hub>,
+    @Body() updateHubDTO: UpdateHubDTO,
   ): Promise<Hub> {
-    return this.hubsService.update(id, modifyChannelDto);
+    return this.hubsService.update(id, updateHubDTO);
   }
 
   @Delete('destroy/:id')
-  destroy(@Param('id') id: string): Promise<Hub> {
+  destroy(@Param('id') id: string): Promise<string> {
     return this.hubsService.remove(id);
   }
 }
