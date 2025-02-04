@@ -30,10 +30,12 @@ export class CreateEventDTO {
   eventType: string;
 
   @IsDate()
+  @IsOptional()
   @ApiProperty({ description: 'Start date of the event' })
   startDate: Date;
 
   @IsDate()
+  @IsOptional()
   @ApiProperty({ description: 'End date of the event' })
   endDate: Date;
 

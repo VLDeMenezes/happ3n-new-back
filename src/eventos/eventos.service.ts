@@ -9,9 +9,6 @@ import { Counter } from 'prom-client';
 import { CreateEventDTO, UpdateEventDTO } from 'src/dto/event.dto';
 import { Event } from 'src/entities/event.entities';
 import { Repository } from 'typeorm';
-import { v2 as cloudinary } from 'cloudinary';
-import { promisify } from 'util';
-import * as fs from 'fs';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
@@ -59,7 +56,7 @@ export class EventosService {
       const imgUrl = img
         ? await this.cloudinaryService.uploadImage(img, 'events')
         : null;
-
+      console.log(body);
       const newEvent = this.eventRepository.create({
         ...body,
         img: imgUrl,

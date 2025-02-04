@@ -15,8 +15,8 @@ import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateEventDTO, UpdateEventDTO } from 'src/dto/event.dto';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from '../multer';
-@Controller('events')
 @ApiTags('Events')
+@Controller('events')
 export class EventsController {
   constructor(private readonly eventsService: EventosService) {}
 
