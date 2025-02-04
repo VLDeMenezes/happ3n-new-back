@@ -40,7 +40,7 @@ export class ChannelsService {
     if (!channel) {
       throw new NotFoundException(`Channel with id ${id} not found`);
     }
-    this.channelsFetchedByIdCounter.inc();
+    this.channelsFetchedByIdCounter.inc(); // Incrementa el contador
     return channel;
   }
 
@@ -67,7 +67,7 @@ export class ChannelsService {
         avatar: avatarUrl,
         background: backgroundUrl,
       });
-      this.channelsCreatedCounter.inc();
+      this.channelsCreatedCounter.inc(); // Incrementa el contador
       return this.channelRepository.save(newChannel);
     } catch (error) {
       throw new InternalServerErrorException({

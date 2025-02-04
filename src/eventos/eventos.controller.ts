@@ -32,7 +32,7 @@ export class EventsController {
     return this.eventsService.findOne(id);
   }
 
-  @Post('create')
+  @Post()
   @ApiOperation({ summary: 'Create a new Event' })
   @ApiBody({ type: CreateEventDTO })
   @ApiResponse({
@@ -45,11 +45,11 @@ export class EventsController {
     @UploadedFiles() files: Express.Multer.File[],
     @Body() createEventDto: CreateEventDTO,
   ): Promise<Event> {
-    const img = files.find((file) => file.fieldname === 'img');
+    const img = files?.find((file) => file.fieldname === 'img') || null;
     return this.eventsService.create(createEventDto, img);
   }
 
-  @Put('modify/:id')
+  @Put(':id')
   @ApiOperation({ summary: 'Modify an Event' })
   @ApiBody({ type: CreateEventDTO })
   @ApiResponse({
@@ -57,15 +57,22 @@ export class EventsController {
     description: 'The event has been successfully modified.',
   })
   @ApiResponse({ status: 400, description: 'Bad Request, check data.' })
-  modify(
+  update(
     @Param('id') id: string,
-    @Body() modifyChannelDto: UpdateEventDTO,
+    @UploadedFiles() files: Express.Multer.File[],
+    @Body() updateEventDTO: UpdateEventDTO,
   ): Promise<Event> {
-    return this.eventsService.update(id, modifyChannelDto);
+    const img = files?.find((file) => file.fieldname === 'img') || null;
+    return this.eventsService.update(id, updateEventDTO, img);
   }
 
-  @Delete('destroy/:id')
+  @Delete(':id')
   @ApiOperation({ summary: 'Delete an Event' })
+  @ApiResponse({
+    status: 200,
+    description: 'The Event has been successfully deleted.',
+  })
+  @ApiResponse({ status: 404, description: 'Event not found.' })
   destroy(@Param('id') id: string): Promise<string> {
     return this.eventsService.remove(id);
   }

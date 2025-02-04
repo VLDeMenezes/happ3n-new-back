@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { InjectMetric } from '@willsoto/nestjs-prometheus';
 import { Counter } from 'prom-client';
@@ -9,7 +13,6 @@ import { v2 as cloudinary } from 'cloudinary';
 import { promisify } from 'util';
 import * as fs from 'fs';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
-const unlinkAsync = promisify(fs.unlink);
 
 @Injectable()
 export class EventosService {
@@ -22,15 +25,32 @@ export class EventosService {
     @InjectMetric('EventsFetchedById')
     private readonly eventsFetchedByIdCounter: Counter<string>,
   ) {}
+
+  /**
+   * Obtiene todos los eventos disponibles en la base de datos.
+   */
   async findAll(): Promise<Event[]> {
     return this.eventRepository.find();
   }
-
+  /**
+   * Busca un canal por ID.
+   * @param id Identificador del canal.
+   * @throws NotFoundException si no se encuentra el canal.
+   */
   async findOne(id: string): Promise<Event> {
+    const event = await this.eventRepository.findOne({ where: { id } });
+    if (!event) {
+      throw new NotFoundException(`Event with id ${id} not found`);
+    }
     this.eventsFetchedByIdCounter.inc(); // Incrementa el contador
-    return this.eventRepository.findOne({ where: { id } });
+    return event;
   }
 
+  /**
+   * Crea un nuevo evento con opción de agregar imágenes.
+   * @param body Datos del evento.
+   * @param img Imagen del evento (opcional).
+   */
   async create(
     body: CreateEventDTO,
     img?: Express.Multer.File,
@@ -40,8 +60,10 @@ export class EventosService {
         ? await this.cloudinaryService.uploadImage(img, 'events')
         : null;
 
-      const event = { ...body, img: imgUrl };
-      const newEvent = this.eventRepository.create(event);
+      const newEvent = this.eventRepository.create({
+        ...body,
+        img: imgUrl,
+      });
       this.eventsCreatedCounter.inc(); // Incrementa el contador
       return this.eventRepository.save(newEvent);
     } catch (error) {
@@ -51,6 +73,13 @@ export class EventosService {
       });
     }
   }
+
+  /**
+   * Actualiza un evento existente.
+   * @param id Identificador del canal.
+   * @param body Datos a actualizar.
+   * @param img Imagen del evento (opcional).
+   */
   async update(
     id: string,
     body: UpdateEventDTO,
@@ -64,14 +93,13 @@ export class EventosService {
           details: `Event with id ${id} not found`,
         });
       }
-      const imgUrl = img
-        ? await this.cloudinaryService.uploadImage(img, 'events')
-        : event.img;
-      const data = { ...body, img: imgUrl };
       Object.assign(event, {
         ...body,
-        img: imgUrl,
+        img: img
+          ? await this.cloudinaryService.uploadImage(img, 'events')
+          : event.img,
       });
+
       return this.eventRepository.save(event);
     } catch (error) {
       throw new InternalServerErrorException({
@@ -80,7 +108,11 @@ export class EventosService {
       });
     }
   }
-
+  /**
+   * Elimina un evento de la base de datos.
+   * @param id Identificador del evento.
+   * @throws NotFoundException si el evento no existe.
+   */
   async remove(id: string): Promise<string> {
     try {
       const event = await this.eventRepository.findOne({ where: { id } });

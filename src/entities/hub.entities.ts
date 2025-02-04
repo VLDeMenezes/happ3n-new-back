@@ -9,11 +9,9 @@ export class Hub {
   @Column()
   background: string;
   @Column()
-  avatar: string;
-  @Column()
   description: string;
   @Column()
-  date: string;
+  date: Date;
   @OneToOne(() => Channel, (owener) => owener.hub)
   owener: string;
 }
