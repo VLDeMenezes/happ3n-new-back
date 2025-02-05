@@ -1,18 +1,28 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  JoinColumn,
+} from 'typeorm';
+import { Channel } from './channel.entities';
 
 @Entity()
 export class Event {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
   eventName: string;
 
-  @Column()
+  @Column({ nullable: true })
   img: string;
 
-  @Column()
-  channel: string;
+  @ManyToOne(() => Channel, (channel) => channel.events, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'channelId' })
+  channel: Channel;
 
   @Column()
   location: string;
@@ -26,21 +36,21 @@ export class Event {
   @Column()
   endDate: Date;
 
-  @Column()
+  @Column({ nullable: true })
   sourceLink: string;
 
-  @Column()
+  @Column({ type: 'text' })
   description: string;
 
   @Column()
   timeZone: string;
 
   @Column()
-  price: string;
+  isPaid: Boolean;
 
-  @Column('simple-array')
+  @Column('simple-array', { nullable: true })
   toppings: string[];
 
-  @Column('simple-array')
+  @Column('simple-array', { nullable: true })
   guest: string[];
 }

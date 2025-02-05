@@ -10,12 +10,14 @@ import { CreateEventDTO, UpdateEventDTO } from 'src/dto/event.dto';
 import { Event } from 'src/entities/event.entities';
 import { Repository } from 'typeorm';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { Channel } from 'src/entities/channel.entities';
 
 @Injectable()
 export class EventosService {
   constructor(
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
+    private readonly channelRepository: Repository<Channel>,
     private readonly cloudinaryService: CloudinaryService,
     @InjectMetric('EventsCreated')
     private readonly eventsCreatedCounter: Counter<string>,
@@ -53,6 +55,10 @@ export class EventosService {
     img?: Express.Multer.File,
   ): Promise<Event> {
     try {
+      const channel = await this.channelRepository.findOne({
+        where: { id: body.channelId },
+      });
+      if (!channel) throw new NotFoundException('Channel not found');
       const imgUrl = img
         ? await this.cloudinaryService.uploadImage(img, 'events')
         : null;

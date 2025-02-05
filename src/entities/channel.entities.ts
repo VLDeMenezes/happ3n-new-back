@@ -1,11 +1,7 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Hub } from './hub.entities';
+import { Event } from './event.entities';
+
 class Banner {
   id: string;
   title: string;
@@ -37,17 +33,14 @@ export class Channel {
   @Column()
   location: string;
 
-  @Column('simple-array')
+  @Column('simple-array', { nullable: true })
   tags: string[];
 
-  @Column()
+  @Column({ type: 'text' })
   about: string;
 
   @Column('jsonb', { nullable: true })
   social: Socials[];
-
-  @Column('jsonb', { nullable: true })
-  events: Event[];
 
   @Column({ nullable: true })
   avatar: string;
@@ -58,7 +51,9 @@ export class Channel {
   @Column('jsonb', { nullable: true })
   banners: Banner[];
 
+  @OneToMany(() => Event, (event) => event.channel, { cascade: true })
+  events: Event[];
+
   @OneToMany(() => Hub, (hub) => hub.owener, { nullable: true })
-  @JoinColumn({ name: 'hubId' })
   hub: Hub[];
 }

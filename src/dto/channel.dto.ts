@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsArray, IsOptional, min, minLength } from 'class-validator';
+import { Event } from 'src/entities/event.entities';
+import { ManyToOne } from 'typeorm';
 
 export class CreateChannelDto {
   @ApiProperty({ description: 'Name of the channel' })
@@ -33,6 +35,7 @@ export class CreateChannelDto {
 
   @IsOptional()
   @IsArray()
+  @ManyToOne(() => Event, (event) => event.channel)
   @ApiProperty({ description: 'Events of the channel', required: false })
   events: any[] = [];
 

@@ -4,7 +4,7 @@ import {
   IsArray,
   IsOptional,
   IsDate,
-  isString,
+  IsBoolean,
 } from 'class-validator';
 
 export class CreateEventDTO {
@@ -18,8 +18,8 @@ export class CreateEventDTO {
   img: string;
 
   @IsString()
-  @ApiProperty({ description: 'Channel owner' })
-  channel: string;
+  @ApiProperty({ description: 'Channel owner id' })
+  channelId: string;
 
   @IsString()
   @ApiProperty({ description: 'Location of the event' })
@@ -54,10 +54,9 @@ export class CreateEventDTO {
   @ApiProperty({ description: 'Zone Horario of the event' })
   timeZone: string;
 
-  @IsString()
-  @IsOptional()
-  @ApiProperty({ description: 'Price of the event', required: false })
-  price: string;
+  @IsBoolean()
+  @ApiProperty({ description: 'Is paid or free' })
+  isPaid: Boolean;
 
   @IsArray()
   @ApiProperty({ description: 'Toppings of the event', type: [String] })
