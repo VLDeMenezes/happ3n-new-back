@@ -17,6 +17,7 @@ export class EventosService {
   constructor(
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
+    @InjectRepository(Channel)
     private readonly channelRepository: Repository<Channel>,
     private readonly cloudinaryService: CloudinaryService,
     @InjectMetric('EventsCreated')
